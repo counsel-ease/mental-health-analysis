@@ -1,0 +1,13 @@
+.git
+__init__.py
+
+# Ignore cache data
+__pycache__/
+*.mypy_cache/
+*.pytest_cache/
+*.DS_STORE
+
+# Ignore datasets
+datasets/
+checkpoints/
+output/
