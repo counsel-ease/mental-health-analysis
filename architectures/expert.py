@@ -124,7 +124,7 @@ class Expert:
             learning_rate=2e-5,
             weight_decay=0.01,
             per_device_train_batch_size=1,
-            fp16=fp16, NOTE: Enable on cuda acceleratred
+            fp16=fp16, #NOTE: Enable on cuda acceleratred
         )
 
         # Create the trainer argument
