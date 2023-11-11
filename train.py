@@ -12,7 +12,7 @@ def load_experts() -> dict:
     return data
 
 
-def train_expert(expert: str, topics: list) -> str:
+def train_expert(expert: str, topics: list) -> None:
     expert_model = Expert()
     expert_model.prepare_dataset(topics)
     expert_model.initialise(expert)

@@ -97,7 +97,7 @@ class Expert:
 
         # Tokenize the data
         self.__encodings = self.__tokenizer(
-            text_sequences,
+            text_sequences.to_list(),
             padding=True,
             truncation=True,
             return_tensors='tf')
@@ -124,7 +124,7 @@ class Expert:
             learning_rate=2e-5,
             weight_decay=0.01,
             per_device_train_batch_size=1,
-            # fp16=fp16, NOTE: Enable on cuda acceleratred
+            fp16=fp16, NOTE: Enable on cuda acceleratred
         )
 
         # Create the trainer argument
