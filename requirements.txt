@@ -2,3 +2,4 @@ torch
 transformers[torch]
 tokenizers
 accelerate
+datasets

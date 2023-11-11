@@ -10,6 +10,7 @@ About:
 '''
 import pandas as pd
 import transformers as t
+from datasets import Dataset
 import os
 
 TOPIC_HEADER = 'topic'
@@ -26,7 +27,7 @@ class Expert:
     def get_name(expert: str):
         return f"{expert}_expert_tuned"
 
-    def __init__(self, debug: int = 1, model_name: str = 'gpt2-large',
+    def __init__(self, debug: int = 0, model_name: str = 'gpt2-large',
                  dataset: str = 'expert_dataset.csv') -> None:
 
         self.__debug = debug
@@ -34,30 +35,6 @@ class Expert:
         self.__post_model_name = ""
         self.__df_path = os.path.join(
             os.path.abspath('datasets'), dataset)
-
-    def __group_texts(self, examples, block_size):
-        # Concatanate the data
-        concat_examples = {"text":
-                           sum(examples[QUESTION_HEADER] +
-                               examples[ANSWER_HEADER], []),
-                           }
-
-        total_length = len(concat_examples["text"])
-
-        # Adjust the length based on block size
-        if total_length >= block_size:
-            total_length = (total_length // block_size) * block_size
-
-        # Split by chunks of block_size.
-        result = {
-            "text": [concat_examples["text"][i:i + block_size]
-                     for i in range(0, total_length, block_size)],
-        }
-
-        # Labels are the same as input_ids.
-        result["labels"] = result["text"].copy()
-
-        return result
 
     def prepare_dataset(self, topics: list):
         # Initialise the dataset and setup the names
@@ -81,12 +58,12 @@ class Expert:
         self.__model = t.AutoModelForCausalLM.from_pretrained(
             self.__pre_model_name)
 
-    def setup_training(self, device: str = 'mps', fp16: bool = True,
-                       epochs: int = 10):
+    def setup_training(self, fp16: bool = False, epochs: int = 10):
 
         # Concatenate question and answer into a single sequence
         text_sequences = (self.__train_df['questionText'] +
                           self.__train_df['answerText']).astype(str)
+
 
         if (self.__debug > 0):
             print(f"Type of text_sequences {type(text_sequences)}")
@@ -97,10 +74,10 @@ class Expert:
 
         # Tokenize the data
         self.__encodings = self.__tokenizer(
-            text_sequences.to_list(),
+            text_sequences.tolist(),
             padding=True,
             truncation=True,
-            return_tensors='tf')
+            return_tensors='pt')
 
         if (self.__debug > 0):
             print(f"Type of self.__encodings {type(self.__encodings)}")
@@ -108,13 +85,14 @@ class Expert:
 
         # Create the data collator
         self.__data_collator = t.DataCollatorForLanguageModeling(
-            tokenizer=self.__tokenizer, mlm=False, return_tensors='tf')
+            tokenizer=self.__tokenizer, mlm=False, return_tensors='pt')
 
         # Extract necessary tensors
         input_ids = self.__encodings['input_ids']
         attention_mask = self.__encodings['attention_mask']
 
-        self.__train_dataset = (input_ids, attention_mask)
+        self.__train_dataset = Dataset.from_dict({'input_ids': input_ids,
+                                                  'attention_mask': attention_mask})
 
         # Define the training arguments
         self.__training_args = t.TrainingArguments(
@@ -124,7 +102,7 @@ class Expert:
             learning_rate=2e-5,
             weight_decay=0.01,
             per_device_train_batch_size=1,
-            fp16=fp16, #NOTE: Enable on cuda acceleratred
+            fp16=fp16, 
         )
 
         # Create the trainer argument
