@@ -26,7 +26,7 @@ class Expert:
     def get_name(expert: str):
         return f"{expert}_expert_tuned"
 
-    def __init__(self, debug: int = 1, model_name: str = 'distilgpt2',
+    def __init__(self, debug: int = 1, model_name: str = 'gpt2-large',
                  dataset: str = 'expert_dataset.csv') -> None:
 
         self.__debug = debug
