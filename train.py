@@ -1,35 +1,60 @@
-import json
-import os
-
-from architectures.expert import Expert
-
-EXPERT_PATH = os.path.abspath('experts.json')
+from argparse import ArgumentParser
+from enum import Enum
 
 
-def load_experts() -> dict:
-    with open(EXPERT_PATH, 'r') as f:
-        data = json.load(f)
-    return data
+from architectures.base_model import BaseModel
 
+class TrainingType(Enum):
+    BASE_MODEL = 1
+    CLASSIFIER = 2
+    REINFORCEMENT = 3
+    TOPIC_MODEL = 4
+    
+    @staticmethod
+    def help():
+        return ("Select training: "
+                f"{TrainingType.BASE_MODEL.value}: base model, "
+                f"{TrainingType.CLASSIFIER.value}: classifier, "
+                f"{TrainingType.REINFORCEMENT.value}: reinforcement, "
+                f"{TrainingType.TOPIC_MODEL.value}: topic model")
 
-def train_expert(expert: str, topics: list) -> None:
-    expert_model = Expert()
-    expert_model.prepare_dataset(topics)
-    expert_model.initialise(expert)
-    expert_model.setup_training(epochs=3)
-    expert_model.train()
-
-
-def train_experts():
-    experts = load_experts()
-
-    for expert, topics in experts.items():
-        train_expert(expert=expert, topics=topics)
-        break
-
+def fine_tune_base_model():
+    base = BaseModel()
+    base.prepare_dataset()
+    base.initialise()
+    base.setup_training()
+    base.train()
+    
 
 def main():
-    train_experts()
+    parser = ArgumentParser(
+            description="Training and Testing Script")
+
+    # Argument for selecting the training type
+    parser.add_argument(
+            '-t', '--training_type', type=int, choices=[t.value for t in TrainingType],
+            help='Select training: 1-base model, 2-classifier, '
+            '3-reinforcement, 4-topic model')
+
+    # Boolean argument for running tests
+    parser.add_argument(
+        '--run_tests', action='store_true',
+        help='Flag to run tests')
+    
+    # Extract the arguments
+    args = parser.parse_args()
+
+    # Parse the arguments
+    if args.training_type == TrainingType.BASE_MODEL.value:
+        fine_tune_base_model()
+    elif args.training_type == TrainingType.CLASSIFIER.value:
+        raise NotImplementedError("Classifier hasn't been added yet")
+    elif args.training_type == TrainingType.REINFORCEMENT.value:
+        raise NotImplementedError("Reinforcement hasn't been added yet")
+    elif args.training_type == TrainingType.TOPIC_MODEL.value:
+        raise NotImplementedError("Topic Model hasn't been added yet")
+    else:
+        assert False, "Invalid choice"
 
 
 if __name__ == "__main__":
