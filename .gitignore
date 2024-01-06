@@ -1,9 +1,18 @@
+# Ignore repo/python files
 .git
 __init__.py
+
+# Ignore the datasets
+quality_response_dataset/
+*.csv
+
+# Environment files
+.venv/
 
 # Ignore cache data
 __pycache__/
 *.mypy_cache/
 *.pytest_cache/
 *.DS_STORE
+
 

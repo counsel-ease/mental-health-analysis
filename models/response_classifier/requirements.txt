@@ -1,0 +1,7 @@
+pandas
+torch
+transformers
+numpy
+requests
+nlpaug
+sentencepiece
