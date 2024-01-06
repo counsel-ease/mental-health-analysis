@@ -103,7 +103,7 @@ For a model to be deployed:
 
 ## Acknowledgments
 
-This project was made possible using the OpenAI GPT2 model availible on [huggingface](https://huggingface.co/gpt2)
+This project was made possible using the TinyLLama 1.1B availible on [huggingface](https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0?), Distilbert availible on [huggingface](https://huggingface.co/docs/transformers/model_doc/distilbert).
 
 
 ## Disclaimer
