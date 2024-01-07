@@ -4,6 +4,10 @@ __init__.py
 
 # Ignore the datasets
 quality_response_dataset/
+dataset/
+output/
+results/
+
 *.csv
 
 # Environment files

@@ -1,0 +1,10 @@
+pandas
+torch
+transformers[torch]
+numpy
+requests
+nlpaug
+sentencepiece
+datasets
+evaluate
+scikit-learn

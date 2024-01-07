@@ -15,15 +15,22 @@ class MultiLabelDatasetPreparer:
         tokenized_dataset = dataset.map(self.tokenize_function, batched=True)
         train_dataset, valid_dataset = tokenized_dataset.train_test_split(
             test_size=0.2).values()
+
+        # Select only the necessary fields
+        train_dataset = train_dataset.remove_columns(["responses", "quality"])
+        valid_dataset = valid_dataset.remove_columns(["responses", "quality"])
+
         return train_dataset, valid_dataset
 
     def tokenize_function(self, examples):
         tokenized_inputs = self._tokenizer(
-            examples=examples["responses"],
+            examples["responses"],
             padding="max_length",
             truncation=True,
             max_length=self._MAX_LENGTH
         )
-        tokenized_inputs["labels"] = list(
-            zip(examples["responses"], examples["quality"]))
+        tokenized_inputs["labels"] = examples["quality"]
         return tokenized_inputs
+
+    def get_tokeniser(self):
+        return self._tokenizer

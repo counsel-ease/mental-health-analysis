@@ -3,8 +3,11 @@ import os
 import numpy as np
 import evaluate
 
-from transformers import (AutoModel, Trainer, TrainingArguments,
-                          DataCollatorWithPadding, PreTrainedTokenizerBase)
+from transformers import (AutoModelForSequenceClassification,
+                          Trainer,
+                          TrainingArguments,
+                          DataCollatorWithPadding,
+                          PreTrainedTokenizerBase)
 
 OUTPUT_PATH = os.path.abspath("output")
 accuracy = evaluate.load("accuracy")
@@ -19,7 +22,6 @@ def compute_metrics(eval_pred):
 
 
 class QualityResponseClassifier:
-    _MAX_LEN = 20
 
     def __init__(self, device: str,
                  tokeniser: PreTrainedTokenizerBase,
@@ -27,17 +29,15 @@ class QualityResponseClassifier:
         self._name = name
         self._device = device
         self._tokeniser = tokeniser
-        self._model = AutoModel.from_pretrained(
+        self._model = AutoModelForSequenceClassification.from_pretrained(
             pretrained_model_name_or_path=name,
-            torch_dtype=torch.float16,
-            attn_implementation="flash_attention_2",
+            torch_dtype=torch.float32,
             num_labels=2,
             id2label={0: "NEGATIVE", 1: "POSITIVE"},
             label2id={"NEGATIVE": 0, "POSITIVE": 1},
-            return_tesnors='pt'
         )
 
-    def _setup_training_args(self, dataset):
+    def _setup_training_args(self, train_set, valid_set):
 
         data_collator = DataCollatorWithPadding(tokenizer=self._tokeniser)
 
@@ -56,8 +56,8 @@ class QualityResponseClassifier:
         trainer = Trainer(
             model=self._model,
             args=training_args,
-            train_dataset=dataset["train"],
-            eval_dataset=dataset["validation"],
+            train_dataset=train_set,
+            eval_dataset=valid_set,
             tokenizer=self._tokeniser,
             data_collator=data_collator,
             compute_metrics=compute_metrics
@@ -65,8 +65,8 @@ class QualityResponseClassifier:
 
         return trainer
 
-    def train(self, dataset):
-        trainer = self._setup_training_args(dataset=dataset)
+    def train(self, train_set, valid_set):
+        trainer = self._setup_training_args(train_set, valid_set)
 
         # Train the model
         trainer.train()
