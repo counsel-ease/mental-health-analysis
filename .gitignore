@@ -2,12 +2,10 @@
 .git
 __init__.py
 
-# Ignore the datasets
-quality_response_dataset/
+# Ignore the Outputs
 output/
 results/
 
-*.csv
 
 # Environment files
 .venv/
